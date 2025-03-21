@@ -46,7 +46,7 @@ const mountPlugin = (domNode) => {
 
 	document.querySelector("#btnParameters").addEventListener("click", async () => {
 		const params = await viktorInstance.audioNode.getParameterInfo();
-		console.log(params);
+		console.log("tetst:",params);
 		console.log("Changing modulation waveform to : " + 5);
 		await viktorInstance.audioNode.setParameterValues( {
 			modulationWaveform:{
@@ -55,13 +55,26 @@ const mountPlugin = (domNode) => {
 			}
 		});
 	})
-	
+
 	async function loadWam(wamUri) {
 		const { default: WAM } = await import(wamUri);
 
 		// Create a new instance of the plugin
 		// You can can optionnally give more options such as the initial state of the plugin
-		const pluginInstance = await WAM.createInstance(hostGroupId, audioContext, {});
+		const pluginInstance = await WAM.createInstance(hostGroupId, audioContext);
 		return pluginInstance;
 	}
+
+	document.querySelector("#btn-save").onclick = () => {
+        const pluginInstance = viktorInstance.audioNode.getState();
+        sessionStorage.setItem('viktorState', JSON.stringify(pluginInstance));
+    };
+
+	document.querySelector("#btn-load").onclick = () => {
+		const savedState = JSON.parse(sessionStorage.getItem('viktorState'));
+		if (savedState) {
+			viktorInstance.audioNode.setState(savedState);
+		}
+	};
+
 })();

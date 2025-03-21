@@ -24,7 +24,7 @@ let style = `
   #viktorPresetMenu {
 	position:absolute;
 	left:500px;
-	top:15px;
+	top:10px;
   }
 
   #viktorPresetMenu select {
@@ -83,7 +83,7 @@ let style = `
   .modulation-polyphony {
 	position:absolute;
 	top:60px;
-	left:82px;
+	left:72px;
 	display:flex;
 	flex-direction:column;
 	align-items:center;
@@ -91,7 +91,7 @@ let style = `
   
   .modulation-polyphony h5 {
 	margin:0px;
-	margin-bottom:5px;
+	margin-bottom:0px;
 	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
 	font-weight: 100;
 	font-size: 14px;
@@ -119,7 +119,7 @@ let style = `
   .modulation-polyphony-bottom-column {
 	border:1px solid #8e8e8e;
 	border-radius:  0 0 10px 10px;
-	padding-top:10px;
+	padding-top:0px;
   }
   .modulation-polyphony-bottom-column h4 {
 	padding: 0 0 0 5
@@ -142,8 +142,8 @@ let style = `
 		align-items:center;
   }
 	.oscillator-column h5 {
-		margin-top:15px;
-		margin-bottom:5px;
+		margin-top:8px;
+		margin-bottom:0px;
 		font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
 		font-weight: 100;
 		font-size: 14px;
@@ -223,7 +223,7 @@ let style = `
 		margin-top:0
 	}
 	#mixer-knob-label-on-off {
-		margin-top:20px;
+		margin-top:9px;
 	}
 	#mixer-knob-label-on-off > h5{
 		padding-top:10px;
@@ -259,7 +259,7 @@ let style = `
 	  }
 	  .noise-row-3 {
 		padding:10px;
-		margin-top:43px;
+		margin-top:35px;
 	  }	  
 	  .noise h4 {
 		font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
@@ -287,7 +287,7 @@ let style = `
 		font-size: 14px;
 		color:#eee;
 		margin-top:15px;
-		margin-bottom:30px;
+		margin-bottom:22px;
 
 
 	  }
@@ -335,7 +335,7 @@ let style = `
 		margin-top:10px;
 	  }
 	  #filter-cutoff-label {
-		margin-top:19px;
+		margin-top:-4px;
 	  }
 
 	.lfo {
@@ -361,14 +361,14 @@ let style = `
 		margin-top:10px;
 	}
 	#lfo-form-label {
-	margin-top:19px;
+	margin-top:-4px;
 	}
 
   /* ----  bottom row ----  */
   .compressor {
 	position:absolute;
 	top:400px;
-	left:760px;
+	left:747px;
 	border:1px solid #8e8e8e;
 	border-radius:10px;	
   }
@@ -394,7 +394,7 @@ let style = `
 	top:400px;
 	left:1050px;
 	width:98px;
-	height:185px;
+	height:188px;
 	border:1px solid #8e8e8e;
 	border-radius:10px;	
 	display:flex;
@@ -412,8 +412,10 @@ let style = `
 
   .reverb {
 	position:absolute;
-	top:495px;
-	left:985px;
+	top:503px;
+	left:977px;
+	width:58px;
+	height: 85px;
 	padding-left:5px;
 	padding-right:5px;
 	border:1px solid #8e8e8e;
@@ -423,7 +425,7 @@ let style = `
 	align-items:center;
   }
   .reverb h4 {
-	margin:0px;
+	margin:-5px;
 	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
 	font-weight: 100;
 	font-size: 18px;
@@ -432,9 +434,10 @@ let style = `
 
   .delay {
 	position:absolute;
-	top:495px;
-	left:760px;
-	width:220px;
+	top:503px;
+	left:747px;
+	width:223px;
+	height:85px;
 	border:1px solid #8e8e8e;
 	border-radius:10px;	
 	display:flex;
@@ -442,7 +445,7 @@ let style = `
 	align-items:center;
   }
   .delay h4 {
-	margin:0px;
+	margin:-5px;
 	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
 	font-weight: 100;
 	font-size: 18px;
@@ -451,7 +454,7 @@ let style = `
   
   .keyboard {
 	position:absolute;
-	top:495px;
+	top:550px;
 	left:195px;
   }
 
@@ -888,6 +891,8 @@ export default class ViktorNV1HTMLElement extends HTMLElement {
 		// MANDATORY for the GUI to observe the plugin state
 		this.plugin = plugin;
 
+		this.plugin.audioNode.gui = this;
+
 		// Compute base URI of this main.html file. This is needed in order
 		// to fix all relative paths in CSS, as they are relative to
 		// the main document, not the plugin's main.html
@@ -1000,7 +1005,7 @@ export default class ViktorNV1HTMLElement extends HTMLElement {
 		// ####### OSCILLATORS ######
 		// OSC1 range
 		let osc1rangeValue = parseInt(transposeParam(synth.oscillatorSettings.osc1.range, [1, 6]).value);
-		this.root.getElementById('knob-osc1-range').setValue(osc1rangeValue, false);
+		this.root.getElementById('knob-osc1-range').setValue(osc1rangeValue, true);
 		// OSC1 waveform
 		let osc1WaveformValue = transposeParam(synth.oscillatorSettings.osc1.waveform, [0, 5]).value;
 		this.root.getElementById('knob-osc1-waveform').setValue(osc1WaveformValue, false);
@@ -1142,7 +1147,8 @@ export default class ViktorNV1HTMLElement extends HTMLElement {
 
 	getModulationValuesFromUI() {
 		const dawEngine = this.getDawEngine();
-		const synth = this.getSynth();
+		const synth = this.getSynth();		console.log("here");
+
 
 		const waveform = {
 			value: parseInt(this.root.getElementById('knob-modulation-waveform').value),

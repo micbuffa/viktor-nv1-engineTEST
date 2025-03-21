@@ -101,5 +101,27 @@ export default class ViktorNV1Node extends CompositeAudioNode {
 	setParamsValues(values) {
 		return this._wamNode.setParamsValues(values);
 	}
-	// -----------------------------------
+
+	getState() {
+		console.log(this);
+		return {
+			pitchSettings: this.synth.pitchSettings,
+			modulationSettings: this.synth.modulationSettings,
+			compressorSettings: this.synth.compressorSettings,
+			delaySettings: this.synth.delaySettings,
+			reverbSettings: this.synth.reverbSettings,
+			masterVolumeSettings: this.synth.masterVolumeSettings
+		};
+	}
+
+	setState(state) {
+		this.synth.pitchSettings = state.pitchSettings;
+		this.synth.modulationSettings = state.modulationSettings;
+		this.synth.compressorSettings = state.compressorSettings;
+		this.synth.delaySettings = state.delaySettings;
+		this.synth.reverbSettings = state.reverbSettings;
+		this.synth.masterVolumeSettings = state.masterVolumeSettings;
+		this.gui.updateUIFromPatchValue();
+	}
+	
 }
