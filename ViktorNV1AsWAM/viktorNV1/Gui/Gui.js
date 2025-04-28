@@ -1016,7 +1016,7 @@ export default class ViktorNV1HTMLElement extends HTMLElement {
 
 
 		// osc2 range
-		let osc2rangeValue =  parseInt(transposeParam(synth.oscillatorSettings.osc2.range, [1, 6]).value);
+		let osc2rangeValue = parseInt(transposeParam(synth.oscillatorSettings.osc2.range, [1, 6]).value);
 		this.root.getElementById('knob-osc2-range').setValue(osc2rangeValue, false);
 		// osc2 waveform
 		let osc2WaveformValue = transposeParam(synth.oscillatorSettings.osc2.waveform, [0, 5]).value;
@@ -1027,7 +1027,7 @@ export default class ViktorNV1HTMLElement extends HTMLElement {
 		this.root.getElementById('knob-osc3-fine-detune').setValue(osc3DetuneValue, false);
 
 		// osc3 range
-		let osc3rangeValue =  parseInt(transposeParam(synth.oscillatorSettings.osc3.range, [1, 6]).value);
+		let osc3rangeValue = parseInt(transposeParam(synth.oscillatorSettings.osc3.range, [1, 6]).value);
 		this.root.getElementById('knob-osc3-range').setValue(osc3rangeValue, false);
 
 		// osc3 waveform
@@ -1093,7 +1093,7 @@ export default class ViktorNV1HTMLElement extends HTMLElement {
 
 		// ######## COMPRESSOR #########
 		// compressor switch
-		this.root.getElementById('compressor-switch').value =dawEngine.compressorSettings.enabled.value;
+		this.root.getElementById('compressor-switch').value = dawEngine.compressorSettings.enabled.value;
 		// compressor threshold
 		this.root.getElementById('knob-compressor-threshold').value = transposeParam(dawEngine.compressorSettings.threshold, [-60, 0]).value;
 		// compressor ratio
@@ -1129,12 +1129,80 @@ export default class ViktorNV1HTMLElement extends HTMLElement {
 
 		// ### POLYPHONY ###
 		// polyphony voices
-		this.root.getElementById('knob-polyphony-voices').value = synth.polyphonySettings.voiceCount.value;	
+		this.root.getElementById('knob-polyphony-voices').value = synth.polyphonySettings.voiceCount.value;
 
 		// ### MODULATION WHEEL ###
 		this.root.getElementById('modulation-wheel').value = transposeParam(synth.modulationSettings.rate, [0, 128]).value;
 		// ### PITCH BEND ###
 		this.root.getElementById('pitch-bend-left').value = transposeParam(dawEngine.pitchSettings.bend, [0, 128]).value;
+	}
+
+	forceUpdateUIFromSynthState() {
+		const dawEngine = this.plugin.dawEngine;
+		const synth = this.getSynth();
+
+		this.root.getElementById('knob-osc1-range').setValue(parseInt(transposeParam(synth.oscillatorSettings.osc1.range, [1, 6]).value), false);
+		this.root.getElementById('knob-osc1-waveform').setValue(transposeParam(synth.oscillatorSettings.osc1.waveform, [0, 5]).value, false);
+		this.root.getElementById('knob-osc2-range').setValue(parseInt(transposeParam(synth.oscillatorSettings.osc2.range, [1, 6]).value), false);
+		this.root.getElementById('knob-osc2-waveform').setValue(transposeParam(synth.oscillatorSettings.osc2.waveform, [0, 5]).value, false);
+		this.root.getElementById('knob-osc2-fine-detune').setValue(transposeParam(synth.oscillatorSettings.osc2.fineDetune, [0, 1600]).value, false);
+		this.root.getElementById('knob-osc3-range').setValue(parseInt(transposeParam(synth.oscillatorSettings.osc3.range, [1, 6]).value), false);
+		this.root.getElementById('knob-osc3-waveform').setValue(transposeParam(synth.oscillatorSettings.osc3.waveform, [0, 5]).value, false);
+		this.root.getElementById('knob-osc3-fine-detune').setValue(transposeParam(synth.oscillatorSettings.osc3.fineDetune, [0, 1600]).value, false);
+
+		this.root.getElementById('mixer-switch-1').value = synth.mixerSettings.volume1.enabled.value;
+		this.root.getElementById('knob-mixer-volume-1').value = transposeParam(synth.mixerSettings.volume1.level, [0, 100]).value;
+		this.root.getElementById('mixer-switch-2').value = synth.mixerSettings.volume2.enabled.value;
+		this.root.getElementById('knob-mixer-volume-2').value = transposeParam(synth.mixerSettings.volume2.level, [0, 100]).value;
+		this.root.getElementById('mixer-on-off-switch').value = synth.mixerSettings.volume3.enabled.value;
+		this.root.getElementById('knob-mixer-volume-3').value = transposeParam(synth.mixerSettings.volume3.level, [0, 100]).value;
+
+		this.root.getElementById('noise-switch').value = synth.noiseSettings.enabled.value;
+		this.root.getElementById('knob-noise-level').value = transposeParam(synth.noiseSettings.level, [0, 100]).value;
+		this.root.getElementById('knob-noise-type').value = synth.noiseSettings.type.value;
+
+		this.root.getElementById('env-primary-attack').value = transposeParam(synth.envelopesSettings.primary.attack, [0, 100]).value;
+		this.root.getElementById('env-primary-decay').value = transposeParam(synth.envelopesSettings.primary.decay, [0, 100]).value;
+		this.root.getElementById('env-primary-sustain').value = transposeParam(synth.envelopesSettings.primary.sustain, [0, 100]).value;
+		this.root.getElementById('env-primary-release').value = transposeParam(synth.envelopesSettings.primary.release, [0, 100]).value;
+		this.root.getElementById('env-filter-attack').value = transposeParam(synth.envelopesSettings.filter.attack, [0, 100]).value;
+		this.root.getElementById('env-filter-decay').value = transposeParam(synth.envelopesSettings.filter.decay, [0, 100]).value;
+		this.root.getElementById('env-filter-sustain').value = transposeParam(synth.envelopesSettings.filter.sustain, [0, 100]).value;
+		this.root.getElementById('env-filter-release').value = transposeParam(synth.envelopesSettings.filter.release, [0, 100]).value;
+
+		this.root.getElementById('knob-filter-cutoff').value = transposeParam(synth.filterSettings.cutoff, [0, 500]).value;
+		this.root.getElementById('knob-filter-emphasis').value = transposeParam(synth.filterSettings.emphasis, [0, 100]).value;
+		this.root.getElementById('knob-filter-env-amount').value = transposeParam(synth.filterSettings.envAmount, [0, 100]).value;
+
+		this.root.getElementById('knob-lfo-waveform').value = transposeParam(synth.lfoSettings.waveform, [0, 5]).value;
+		this.root.getElementById('knob-lfo-rate').value = transposeParam(synth.lfoSettings.rate, [1, 25]).value;
+		this.root.getElementById('knob-lfo-amount').value = transposeParam(synth.lfoSettings.amount, [0, 100]).value;
+
+		this.root.getElementById('knob-modulation-waveform').value = transposeParam(synth.modulationSettings.waveform, [0, 5]).value;
+		this.root.getElementById('knob-modulation-glide').value = transposeParam(synth.modulationSettings.portamento, [0, 100]).value;
+		this.root.getElementById('modulation-wheel').value = transposeParam(synth.modulationSettings.rate, [0, 128]).value;
+
+		this.root.getElementById('knob-polyphony-voices').value = synth.polyphonySettings.voiceCount.value;
+
+		this.root.getElementById('compressor-switch').value = dawEngine.compressorSettings.enabled.value;
+		this.root.getElementById('knob-compressor-threshold').value = transposeParam(dawEngine.compressorSettings.threshold, [-60, 0]).value;
+		this.root.getElementById('knob-compressor-ratio').value = transposeParam(dawEngine.compressorSettings.ratio, [1, 20]).value;
+		this.root.getElementById('knob-compressor-knee').value = transposeParam(dawEngine.compressorSettings.knee, [0, 20]).value;
+		this.root.getElementById('knob-compressor-attack').value = transposeParam(dawEngine.compressorSettings.attack, [0, 1000]).value;
+		this.root.getElementById('knob-compressor-release').value = transposeParam(dawEngine.compressorSettings.release, [0, 1000]).value;
+		this.root.getElementById('knob-compressor-makeupGain').value = transposeParam(dawEngine.compressorSettings.makeupGain, [0, 10]).value;
+
+		this.root.getElementById('knob-delay-time').value = transposeParam(dawEngine.delaySettings.time, [0, 100]).value;
+		this.root.getElementById('knob-delay-feedback').value = transposeParam(dawEngine.delaySettings.feedback, [0, 100]).value;
+		this.root.getElementById('knob-delay-dry').value = transposeParam(dawEngine.delaySettings.dry, [0, 100]).value;
+		this.root.getElementById('knob-delay-wet').value = transposeParam(dawEngine.delaySettings.wet, [0, 100]).value;
+
+		this.root.getElementById('knob-reverb-level').value = transposeParam(dawEngine.reverbSettings.level, [0, 100]).value;
+
+		this.root.getElementById('pitch-bend-left').value = transposeParam(dawEngine.pitchSettings.bend, [0, 128]).value;
+
+		this.root.getElementById('masterVolume').value = transposeParam(dawEngine.masterVolumeSettings.level, [0, 100]).value;
+
 	}
 
 	getSynth() {
@@ -1147,7 +1215,7 @@ export default class ViktorNV1HTMLElement extends HTMLElement {
 
 	getModulationValuesFromUI() {
 		const dawEngine = this.getDawEngine();
-		const synth = this.getSynth();		console.log("here");
+		const synth = this.getSynth();
 
 
 		const waveform = {
@@ -1159,9 +1227,7 @@ export default class ViktorNV1HTMLElement extends HTMLElement {
 			value: this.root.getElementById('knob-modulation-glide').value,
 			range: [0, 100]
 		}
-		console.log("Portamento value in range [0, 100] = " + portamento.value);
 		const portamentoInNewRange = transposeParam(portamento, [0, 0.16666666666666666]);
-		console.log("Portamento value in range [0, 0.16666666666666666] = " + portamentoInNewRange.value);
 
 		const rate = synth.modulationSettings.rate;
 		return {
@@ -1185,8 +1251,6 @@ export default class ViktorNV1HTMLElement extends HTMLElement {
 			// rate is changed using the modulation wheel.
 			rate: uiSettings.rate
 		};
-		console.log("Modulation settings");
-		console.dir(synth.modulationSettings);
 	}
 
 	/* getPolyphonyValuesFromUI() {
@@ -1318,8 +1382,6 @@ export default class ViktorNV1HTMLElement extends HTMLElement {
 			}
 		};
 
-		console.log("Oscillator settings");
-		console.dir(synth.oscillatorSettings);
 	}
 
 	getMixerValuesFromUI() {
@@ -1379,8 +1441,7 @@ export default class ViktorNV1HTMLElement extends HTMLElement {
 			volume2: uiSettings.volume2,
 			volume3: uiSettings.volume3
 		};
-		console.log("Mixer settings");
-		console.dir(synth.mixerSettings);
+
 	}
 
 	getNoiseValuesFromUI() {
@@ -1486,8 +1547,6 @@ export default class ViktorNV1HTMLElement extends HTMLElement {
 			filter: uiSettings.filter
 		};
 
-		console.log("Envelope settings");
-		console.dir(synth.envelopes);
 	}
 
 
@@ -1525,8 +1584,6 @@ export default class ViktorNV1HTMLElement extends HTMLElement {
 			envAmount: uiSettings.envAmount
 		};
 
-		console.log("Filter settings")
-		console.dir(synth.filterSettings);
 
 	}
 
@@ -1750,8 +1807,6 @@ export default class ViktorNV1HTMLElement extends HTMLElement {
 		dawEngine.pitchSettings = {
 			bend: uiSettings.bend
 		};
-		console.log("Pitch bend settings")
-		console.dir(dawEngine.pitchSettings);
 
 	}
 

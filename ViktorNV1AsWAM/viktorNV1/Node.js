@@ -37,15 +37,15 @@ export default class ViktorNV1Node extends CompositeAudioNode {
 			var midimsg = this.produceMidiMessage(msg[0], msg[1], msg[2]);
 			console.log("setup de Node.js, midimsg = " + midimsg)
 
-            this.synth.externalMidiMessage(midimsg);
+			this.synth.externalMidiMessage(midimsg);
 		});
 	}
 
-	 produceMidiMessage(firstByte, secondByte, thirdByte) {
+	produceMidiMessage(firstByte, secondByte, thirdByte) {
 		return { data: [firstByte, secondByte, thirdByte] };
 	};
 
-	
+
 
 	async createSynth(dawEngine) {
 		this.synth = dawEngine;
@@ -103,25 +103,66 @@ export default class ViktorNV1Node extends CompositeAudioNode {
 	}
 
 	getState() {
-		console.log(this);
+		const selectElement = this.gui.root.querySelector('#viktorPresetMenu select');
+		const currentPresetName = selectElement ? selectElement.value : null;
+
+		const instrument = this.synth.instruments[0];
+
 		return {
-			pitchSettings: this.synth.pitchSettings,
-			modulationSettings: this.synth.modulationSettings,
-			compressorSettings: this.synth.compressorSettings,
-			delaySettings: this.synth.delaySettings,
-			reverbSettings: this.synth.reverbSettings,
-			masterVolumeSettings: this.synth.masterVolumeSettings
+			instrumentSettings: {
+				oscillatorSettings: instrument.oscillatorSettings,
+				envelopesSettings: instrument.envelopesSettings,
+				filterSettings: instrument.filterSettings,
+				lfoSettings: instrument.lfoSettings,
+				mixerSettings: instrument.mixerSettings,
+				modulationSettings: instrument.modulationSettings,
+				noiseSettings: instrument.noiseSettings,
+				polyphonySettings: instrument.polyphonySettings
+			},
+			dawEngineSettings: {
+				pitchSettings: this.synth.pitchSettings,
+				modulationSettings: this.synth.modulationSettings,
+				compressorSettings: this.synth.compressorSettings,
+				delaySettings: this.synth.delaySettings,
+				reverbSettings: this.synth.reverbSettings,
+				masterVolumeSettings: this.synth.masterVolumeSettings
+			},
+			currentPresetName
 		};
 	}
 
 	setState(state) {
-		this.synth.pitchSettings = state.pitchSettings;
-		this.synth.modulationSettings = state.modulationSettings;
-		this.synth.compressorSettings = state.compressorSettings;
-		this.synth.delaySettings = state.delaySettings;
-		this.synth.reverbSettings = state.reverbSettings;
-		this.synth.masterVolumeSettings = state.masterVolumeSettings;
-		this.gui.updateUIFromPatchValue();
+		const selectElement = this.gui.root.querySelector('#viktorPresetMenu select');
+		if (selectElement) selectElement.value = state.currentPresetName;
+
+		const selectedItem = this.gui.plugin.patchLibrary.getPatch(state.currentPresetName);
+		if (selectedItem) this.synth.loadPatch(selectedItem.patch);
+
+		const instrument = this.synth.instruments[0];
+		const settings = state.instrumentSettings || {};
+
+		instrument.oscillatorSettings = settings.oscillatorSettings;
+		instrument.envelopesSettings = settings.envelopesSettings;
+		instrument.filterSettings = settings.filterSettings;
+		instrument.lfoSettings = settings.lfoSettings;
+		instrument.mixerSettings = settings.mixerSettings;
+		instrument.modulationSettings = settings.modulationSettings;
+		instrument.noiseSettings = settings.noiseSettings;
+		instrument.polyphonySettings = settings.polyphonySettings;
+
+		const dawSettings = state.dawEngineSettings || {};
+
+		this.synth.pitchSettings = dawSettings.pitchSettings;
+		this.synth.modulationSettings = dawSettings.modulationSettings;
+		this.synth.compressorSettings = dawSettings.compressorSettings;
+		this.synth.delaySettings = dawSettings.delaySettings;
+		this.synth.reverbSettings = dawSettings.reverbSettings;
+		this.synth.masterVolumeSettings = dawSettings.masterVolumeSettings;
+
+		this.updateSynthUI();
 	}
-	
+
+	updateSynthUI() {
+		setTimeout(() => { this.gui.forceUpdateUIFromSynthState(); }, 150);
+	}
 }
