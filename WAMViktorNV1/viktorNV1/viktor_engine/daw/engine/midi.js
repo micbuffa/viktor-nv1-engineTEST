@@ -1,0 +1,207 @@
+'use strict';
+
+function MIDIController() {
+	var self = this;
+
+	self.messageHandler = null;
+	self.inputs = [];
+}
+
+MIDIController.prototype = {
+
+	init: function( callback ) {
+		var self = this,
+			requestMIDIAccess = navigator.requestMIDIAccess;
+
+		if ( requestMIDIAccess ) {
+			requestMIDIAccess.bind( navigator )().then(
+				self.onMidiAccess.bind( self, callback ),
+				function( error ) {
+					console.log( error );
+					if ( callback ){
+						callback();
+					}
+				}
+			);
+		} else {
+			console.log( "Midi API is unavailable in this browser." );
+			if ( callback ){
+				callback();
+			}
+		}
+	},
+
+	onMidiAccess: function( callback, midiAccess ) {
+		var self = this,
+			inputs = midiAccess.inputs,
+			midiMessageHandler = self.onMidiMessage.bind( self ),
+			noDevicesMessage = "No MIDI devices are connected.";
+
+		self.midiAccess = midiAccess;
+
+		if ( "function" === typeof inputs ) {
+			// first case is a deprecated old way
+			inputs = inputs();
+
+			if ( inputs.length === 0 ) {
+				if ( callback ) {
+					callback( noDevicesMessage );
+				}
+			} else {
+				for ( var i = 0; i < inputs.length; i++ ) {
+					inputs[ i ].onmidimessage = midiMessageHandler;
+				}
+			}
+		} else {
+			// ... the current API
+			inputs = inputs.values();
+
+			var input = inputs.next(),
+				predicate = function(x) { return x && !x.done; },
+				hasDevices = predicate( input );
+
+			while ( predicate( input ) ) {
+				input.value.onmidimessage = midiMessageHandler;
+
+				// preserve not to be garbage collected
+				self.inputs.push( input );
+
+				input = inputs.next();
+			}
+
+			if ( !hasDevices ) {
+				console.log( noDevicesMessage );
+			}
+
+			if ( callback ) {
+				callback();
+			}
+
+		}
+	},
+
+	setMessageHandler: function( func ) {
+		var self = this;
+
+		self.messageHandler = func;
+	},
+
+	onMidiMessage: function( event ) {
+		var self = this,
+			parsed = self.parseEventData( event ),
+			type = parsed ?
+				( parsed.isVolume ? "volume" :
+					( parsed.isSustain ? "sustain" :
+						( parsed.isPitchBend ? "pitchBend" :
+							( parsed.isModulationWheel ? "modulationWheel" : "notePress" )
+						)
+					)
+				) : "other";
+
+		self.messageHandler(
+			type,
+			parsed,
+			event
+		);
+	},
+
+	parseEventData: function( event ) {
+		//console.log("MIDI EVENT RECEIVED !")
+		//console.log(event);
+		//console.log(event.data.length);
+
+		/* MB: MidiKeys sends messages with only 2 bytes, so we cannot check for length
+		// MB: this is not a good idea, because some devices send messages with only 2 bytes
+		// MB: so we should not throw an error here
+		
+		if ( !event || !event.data || !event.data.length || event.data.length < 3 ) {
+			throw new Error( "Unreadable MIDI message." );
+		}
+			*/
+
+		// MB: we can check for length, but we should not throw an error
+		if ( !event || !event.data || !event.data.length || event.data.length < 2 ) {
+			console.warn( "Unreadable MIDI message." );
+			return null;
+		}
+
+		var firstByte = event.data[ 0 ],
+			secondByte = event.data[ 1 ],
+			thirdByte = event.data[ 2 ],
+			binary = function( string ) {
+				return parseInt( string, 2 );
+			},
+			noteFrequency = function( number ) {
+				return 440 * Math.pow( 2, ( number - 69 ) / 12 );
+			},
+			isPitchBend = false,
+			isModulationWheel = false,
+			isSustain = false,
+			isVolume = false,
+			isNoteOn = false,
+			parsed = false,
+			pitchBend,
+			modulation,
+			sustain,
+			volume;
+
+		// 10011111 & 11110000 = 10010000
+		var simpleFirstByte = firstByte & binary( "11110000" );
+
+		if ( simpleFirstByte === binary( "10010000" ) ) {
+			if ( thirdByte !== 0 ) {
+				isNoteOn = true;
+			}
+			parsed = true;
+		} else if ( simpleFirstByte === binary( "11100000" ) ) {
+			isPitchBend = true;
+			pitchBend = {
+				value: ( ( thirdByte * 128 + secondByte ) - 8192 ) / 8192,
+				range: [ -1, 1 ]
+			};
+			parsed = true;
+		} else if ( simpleFirstByte === binary( "10000000" ) ) {
+			parsed = true;
+		} else if ( simpleFirstByte === binary( "10110000" ) ) {
+			if ( secondByte === binary( "00000001" ) ) {
+				isModulationWheel = true;
+				modulation = {
+					value: thirdByte / 127,
+					range: [ 0, 1 ]
+				};
+				parsed = true;
+			} else if ( secondByte === binary( "01000000" ) ) {
+				isSustain = true;
+				sustain = {
+					value: thirdByte > 63 ? 1 : 0,
+					range: [ 0, 1 ]
+				};
+				parsed = true;
+			} else if ( secondByte === binary( "00000111" ) ) {
+				isVolume = true;
+				volume = {
+					value: thirdByte,
+					range: [ 0, 127 ]
+				};
+				parsed = true;
+			}
+		}
+
+		return parsed ? {
+			isPitchBend: isPitchBend,
+			isModulationWheel: isModulationWheel,
+			pitchBend: pitchBend,
+			modulation: modulation,
+			isSustain: isSustain,
+			sustain: sustain,
+			isVolume: isVolume,
+			volume: volume,
+			isNoteOn: isNoteOn,
+			noteFrequency: noteFrequency( secondByte ),
+			velocity: thirdByte
+		} : null;
+	}
+
+};
+
+export default MIDIController;

@@ -1,0 +1,14 @@
+{
+    "name": "ViktorNV1",
+    "vendor": "wimmics",
+    "description": "WAM Port of Viktor NV1 synth",
+    "version": "1.0.0",
+    "apiVersion": "2.0.0",
+    "thumbnail": "viktorNV1.png",
+    "keywords": [],
+    "isInstrument": true,
+	"hasMidiInput":true,
+	"hasMidiOutput":true,
+	"hasAudioOutput":true,
+    "website": ""
+}

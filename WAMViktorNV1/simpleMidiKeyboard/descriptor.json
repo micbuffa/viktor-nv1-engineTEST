@@ -1,0 +1,15 @@
+{
+    "name": "Virtual MIDI Keyboard",
+    "vendor": "WebAudioModule",
+    "description": "SImple piano keyboard to send MIDI Notes",
+    "version": "1.0.0",
+    "apiVersion": "2.0.0",
+    "thumbnail": "screenshot.png",
+    "keywords": [],
+    "isInstrument": false,
+    "hasMidiInput":false,
+	"hasMidiOutput":true,
+	"hasAudioOutput":false,
+	"hasAudioInput":false,
+    "website": ""
+}
